@@ -4,13 +4,27 @@ import css from './app.module.css';
 import ContactForm from 'components/ContactForm';
 import ContactList from 'components/ContactList';
 import Filter from 'components/Filter';
-import contacts from 'contacts.json';
 
 class App extends Component {
   state = {
-    contacts: contacts,
+    contacts: [],
     filter: '',
   };
+
+  componentDidMount() {
+    const contacts = localStorage.getItem('contacts');
+    const parsedContacts = contacts ? JSON.parse(contacts) : [];
+
+    if (parsedContacts) {
+      this.setState({ contacts: parsedContacts });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.contacts !==prevState.contacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+    }
+  }
 
   addContact = contact => {
     const { name } = contact;
@@ -48,11 +62,13 @@ class App extends Component {
 
   render() {
     const { contacts, filter } = this.state;
-    const filteredContacts = contacts.filter(
-      contact =>
-        contact.name &&
-        contact.name.toLowerCase().includes(filter.toLowerCase())
-    );
+    const filteredContacts = contacts
+    ? contacts.filter(
+        contact =>
+          contact.name &&
+          contact.name.toLowerCase().includes(filter.toLowerCase())
+      )
+    : [];
 
     return (
       <div className={css.container}>
@@ -69,3 +85,5 @@ class App extends Component {
   }
 }
 export default App;
+
+
